@@ -8,11 +8,9 @@ import ImageHoster.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
@@ -50,6 +48,7 @@ public class ImageController {
         Image image = imageService.getImageByTitle(title,id);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
+
         return "images/image";
     }
 
@@ -92,12 +91,19 @@ public class ImageController {
     //The method first needs to convert the list of all the tags to a string containing all the tags separated by a comma and then add this string in a Model type object
     //This string is then displayed by 'edit.html' file as previous tags of an image
     @RequestMapping(value = "/editImage")
-    public String editImage(@RequestParam("imageId") Integer imageId, Model model) {
+    public String editImage(@RequestParam("imageId") Integer imageId, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         Image image = imageService.getImage(imageId);
 
+        User user = (User) session.getAttribute("loggeduser");
         String tags = convertTagsToString(image.getTags());
         model.addAttribute("image", image);
         model.addAttribute("tags", tags);
+        if(user.getId()!=image.getUser().getId()) {
+            redirectAttributes.addFlashAttribute("editError", "editError");
+            return "redirect:/images/" + imageId+"/"+image.getTitle();
+
+        }
+
         return "images/edit";
     }
 
@@ -127,12 +133,14 @@ public class ImageController {
 
         updatedImage.setId(imageId);
         User user = (User) session.getAttribute("loggeduser");
+
         updatedImage.setUser(user);
         updatedImage.setTags(imageTags);
         updatedImage.setDate(new Date());
 
         imageService.updateImage(updatedImage);
-        return "redirect:/images/" + updatedImage.getTitle();
+
+        return "redirect:/images/" + imageId+"/"+updatedImage.getTitle();
     }
 
 
@@ -140,7 +148,17 @@ public class ImageController {
     //The method calls the deleteImage() method in the business logic passing the id of the image to be deleted
     //Looks for a controller method with request mapping of type '/images'
     @RequestMapping(value = "/deleteImage", method = RequestMethod.DELETE)
-    public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId) {
+    public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId,HttpSession session, RedirectAttributes redirectAttributes,Model model) {
+        User user = (User) session.getAttribute("loggeduser");
+        Image image = imageService.getImage(imageId);
+        if(user.getId()!=image.getUser().getId()) {
+            String tags = convertTagsToString(image.getTags());
+            model.addAttribute("image", image);
+            model.addAttribute("tags", tags);
+            redirectAttributes.addFlashAttribute("deleteError", "deleteError");
+            return "redirect:/images/" + imageId+"/"+image.getTitle();
+
+        }
         imageService.deleteImage(imageId);
         return "redirect:/images";
     }
