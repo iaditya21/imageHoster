@@ -1,8 +1,10 @@
 package ImageHoster.controller;
 
+import ImageHoster.model.Comment;
 import ImageHoster.model.Image;
 import ImageHoster.model.Tag;
 import ImageHoster.model.User;
+import ImageHoster.service.CommentService;
 import ImageHoster.service.ImageService;
 import ImageHoster.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class ImageController {
     @Autowired
     private TagService tagService;
 
+    @Autowired
+    private CommentService commentService;
+
     //This method displays all the images in the user home page after successful login
     @RequestMapping("images")
     public String getUserImages(Model model) {
@@ -44,11 +49,16 @@ public class ImageController {
     //Here a list of tags is added in the Model type object
     //this list is then sent to 'images/image.html' file and the tags are displayed
     @RequestMapping("/images/{id}/{title}")
-    public String showImage(@PathVariable("title") String title, Model model, @PathVariable("id") int id) {
+    public String showImage(@PathVariable("title") String title, Model model, @PathVariable("id") int id,HttpSession session) {
         Image image = imageService.getImageByTitle(title,id);
+        User user = (User) session.getAttribute("loggeduser");
+        Comment comment=new Comment();
+//        comment.setUser(user);
+//        comment.setImage(image);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
-
+        model.addAttribute("Comment",comment);
+        model.addAttribute("comments",commentService.getAllComments(id));
         return "images/image";
     }
 
