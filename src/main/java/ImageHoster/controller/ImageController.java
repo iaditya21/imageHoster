@@ -50,13 +50,15 @@ public class ImageController {
     //this list is then sent to 'images/image.html' file and the tags are displayed
     @RequestMapping("/images/{id}/{title}")
     public String showImage(@PathVariable("title") String title, Model model, @PathVariable("id") int id,HttpSession session) {
-        Image image = imageService.getImageByTitle(title,id);
+        Image image = imageService.getImage(id);
+                //imageService.getImageByTitle(title,id);
         User user = (User) session.getAttribute("loggeduser");
         Comment comment=new Comment();
 //        comment.setUser(user);
 //        comment.setImage(image);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
+
         model.addAttribute("Comment",comment);
         model.addAttribute("comments",commentService.getAllComments(id));
         return "images/image";
@@ -109,8 +111,10 @@ public class ImageController {
         model.addAttribute("image", image);
         model.addAttribute("tags", tags);
         if(user.getId()!=image.getUser().getId()) {
-            redirectAttributes.addFlashAttribute("editError", "editError");
-            return "redirect:/images/" + imageId+"/"+image.getTitle();
+           // redirectAttributes.addFlashAttribute("editError", "Only the owner of the image can edit the image");
+            model.addAttribute("editError", "Only the owner of the image can edit the image");
+            return "forward:/images/" + imageId+"/"+image.getTitle();
+            //return "redirect:/images/" + imageId+"/"+image.getTitle();
 
         }
 
@@ -165,8 +169,9 @@ public class ImageController {
             String tags = convertTagsToString(image.getTags());
             model.addAttribute("image", image);
             model.addAttribute("tags", tags);
-            redirectAttributes.addFlashAttribute("deleteError", "deleteError");
-            return "redirect:/images/" + imageId+"/"+image.getTitle();
+            model.addAttribute("deleteError", "Only the owner of the image can delete the image");
+           // redirectAttributes.addFlashAttribute("deleteError", "Only the owner of the image can delete the image");
+            return "forward:/images/" + imageId+"/"+image.getTitle();
 
         }
         imageService.deleteImage(imageId);
@@ -210,9 +215,13 @@ public class ImageController {
             tagString.append(tags.get(i).getName()).append(",");
         }
 
-        Tag lastTag = tags.get(tags.size() - 1);
-        tagString.append(lastTag.getName());
+        try {
+            Tag lastTag = tags.get(tags.size() - 1);
+            tagString.append(lastTag.getName());
 
-        return tagString.toString();
+            return tagString.toString();
+        }catch (Exception e){
+            return tagString.toString();
+        }
     }
 }

@@ -14,10 +14,11 @@ public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
 
+    //The method calls the getAllComment() method in the Repository and passes the Image id of the image for which comments are to be fetched.
     public List<Comment> getAllComments(int imageID){
         return commentRepository.getAllComment(imageID);
     }
-
+    //The method calls the postComment() method in the Repository and creates a new entry for comment in database.
     public Comment postNewComment(Comment comment){
         return commentRepository.postComment(comment);
     }

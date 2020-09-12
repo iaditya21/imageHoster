@@ -51,6 +51,8 @@ public class Image {
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Tag> tags = new ArrayList<>();
 
+    //This attribute contains list of comments for an image and is mapped to 'image' variable in Comments model class
+    //Cascade type ensures that in removal of image ,related comments are also deleted
     @OneToMany(mappedBy = "image", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 

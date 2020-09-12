@@ -33,12 +33,13 @@ public class Comment {
 
 
     @ManyToOne(fetch = FetchType.EAGER)
-    //Below annotation indicates that the name of the column in 'images' table referring the primary key in 'users' table will be 'user_id'
+    //Below annotation indicates that the name of the column in 'comments' table referring the primary key in 'users' table will be 'user_id'
     @JoinColumn(name = "user_id")
     private User user;
 
 
     @ManyToOne(fetch = FetchType.EAGER)
+    //Below annotation indicates that the name of the column in 'comments' table referring the primary key in 'images' table will be 'image_id'
     @JoinColumn(name = "image_id")
     private Image image;
 

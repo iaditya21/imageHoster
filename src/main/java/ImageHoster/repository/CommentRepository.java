@@ -15,7 +15,7 @@ public class CommentRepository {
     @PersistenceUnit(unitName = "imageHoster")
     private EntityManagerFactory emf;
 
-
+    //The method inserts a new comment in database.
     public Comment postComment(Comment newComment) {
 
         EntityManager em = emf.createEntityManager();
@@ -32,7 +32,7 @@ public class CommentRepository {
         return newComment;
     }
 
-
+    //Fetches all the comments to a relevant image
     public List<Comment> getAllComment(int imageId) {
         EntityManager em = emf.createEntityManager();
         TypedQuery<Comment> query = em.createQuery("SELECT c from Comment c where c.image.id=:imageId", Comment.class);

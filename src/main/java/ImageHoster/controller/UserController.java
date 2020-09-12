@@ -43,16 +43,20 @@ public class UserController {
     //This controller method is called when the request pattern is of type 'users/registration' and also the incoming request is of POST type
     //This method calls the business logic and after the user record is persisted in the database, directs to login page
     @RequestMapping(value = "users/registration", method = RequestMethod.POST)
-    public String registerUser(User user, RedirectAttributes attributes) {
+    public String registerUser(User user, Model model) {
         String regex="^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@#$%^&-+=()]).{3,20}$";
         Pattern pattern=Pattern.compile(regex);
         if(pattern.matcher(user.getPassword()).matches()) {
             userService.registerUser(user);
-            return "redirect:/users/login";
+          //  return "redirect:/users/login";
+            return "users/login";
         }
         else {
-            attributes.addFlashAttribute("passwordTypeError","Password must contain at least 1 alphabet, 1 number & 1 special character");
-            return "redirect:/users/registration";
+          //  attributes.addFlashAttribute("passwordTypeError","Password must contain at least 1 alphabet, 1 number & 1 special character");
+            model.addAttribute("User", user);
+            model.addAttribute("passwordTypeError","Password must contain at least 1 alphabet, 1 number & 1 special character");
+          //  return "redirect:/users/registration";
+            return "users/registration";
         }
     }
 
