@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
+@SuppressWarnings("All")
 //@Entity annotation specifies that the corresponding class is a JPA entity
 @Entity
 //@Table annotation provides more options to customize the mapping.
@@ -51,7 +51,20 @@ public class Image {
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Tag> tags = new ArrayList<>();
 
+    //This attribute contains list of comments for an image and is mapped to 'image' variable in Comments model class
+    //Cascade type ensures that in removal of image ,related comments are also deleted
+    @OneToMany(mappedBy = "image", cascade = CascadeType.REMOVE)
+    private List<Comment> comments = new ArrayList<>();
+
     public Image() {
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 
     public Image(int id, String title, String imageFile, Date date) {
@@ -126,4 +139,6 @@ public class Image {
     public void setTags(List<Tag> tags) {
         this.tags = tags;
     }
+
+
 }
